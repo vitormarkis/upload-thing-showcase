@@ -1,3 +1,7 @@
+import { Inter } from "next/font/google"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -10,11 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { UploadButton } from "@/utils/uploadthing"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Inter } from "next/font/google"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
+import { UploadFile } from "@/components/upload-file/UploadFile"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -30,12 +30,12 @@ export default function Home() {
       username: "",
       profile_pic: "",
     },
-    mode: "onTouched"
+    mode: "onTouched",
   })
 
   const { isSubmitting, errors } = form.formState
 
-  if(Object.keys(errors)) console.log(errors)
+  if (Object.keys(errors).length) console.log(errors)
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values)
@@ -80,20 +80,10 @@ export default function Home() {
                   <FormItem>
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                    <UploadButton
-                      endpoint="imageUploader"
-                      onClientUploadComplete={(res) => {
-                        // Do something with the response
-                        console.log("Files: ", res);
-                        if(!res) return
-                        const [file] = res
-                        field.onChange(file.url)
-                      }}
-                      onUploadError={(error: Error) => {
-                        // Do something with the error.
-                        alert(`ERROR! ${error.message}`);
-                      }}
-                    />
+                      <UploadFile
+                        endpoint="imageUploader"
+                        {...field}
+                      />
                     </FormControl>
                     <FormDescription>This is your public display name.</FormDescription>
                     <FormMessage />
