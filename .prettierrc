@@ -1,0 +1,20 @@
+{
+  "printWidth": 100,
+  "semi": false,
+  "arrowParens": "avoid",
+  "singleAttributePerLine": true,
+  "trailingComma": "es5",
+  "bracketSameLine": false,
+  "bracketSpacing": true,
+  "importOrder": [
+    "^@([^/].*)$",
+    "^@/lib/(.*)$",
+    "^@/components/(.*)$",
+    "^@/(hooks|factories)/(.*)$",
+    "^@(server|trpc)/(.*)$",
+    "^@/(.*)$",
+    "^[./]"
+  ],
+  "importOrderSeparation": false,
+  "plugins": ["@trivago/prettier-plugin-sort-imports"]
+}
