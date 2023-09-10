@@ -5,10 +5,12 @@ const f = createUploadthing()
 
 const auth = async (req: NextApiRequest, res: NextApiResponse) => ({ id: "fakeId" }) // Fake auth function
 
+export const imageUploader_maxFileSize = "4MB"
+
 // FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
   // Define as many FileRoutes as you like, each with a unique routeSlug
-  imageUploader: f({ image: { maxFileSize: "4MB" } })
+  imageUploader: f({ image: { maxFileSize: imageUploader_maxFileSize, maxFileCount: 5 } })
     // Set permissions and file types for this FileRoute
     .middleware(async ({ req, res }) => {
       // This code runs on your server before upload
