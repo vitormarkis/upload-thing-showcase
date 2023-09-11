@@ -22,7 +22,7 @@
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",
     "lucide-react": "^0.274.0",
-    "next": "13.4.19",
+    "next": "canary",
     "next-themes": "^0.2.1",
     "postcss": "8.4.29",
     "prettier": "^3.0.3",

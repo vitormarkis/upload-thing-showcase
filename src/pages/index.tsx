@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { UploadFileCustom } from "@/components/upload-file-custom/UploadFileCustom"
+import { UploadFileButton } from "@/components/upload-file-button/UploadFileButton"
 import { uploadFileResponseSchema } from "@/schemas/uploadFileResponseSchema"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -26,9 +26,11 @@ export const formSchema = z.object({
   profile_pic: z.array(uploadFileResponseSchema).min(1, "Escolha pelo menos uma foto de perfil."),
 })
 
+type FormSchema = z.infer<typeof formSchema>
+
 export default function Home() {
   const form = useForm<
-    z.infer<typeof formSchema> & {
+    FormSchema & {
       profile_pic: UploadFileResponse[]
     }
   >({
@@ -40,17 +42,19 @@ export default function Home() {
     mode: "onTouched",
   })
 
+  console.log(form.watch("profile_pic"))
+
   const { isSubmitting, errors } = form.formState
 
   if (Object.keys(errors).length) console.log(errors)
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: FormSchema) {
     type APIBody = {
       username: string
       profile_pic: string[]
     }
 
-    function getAPIBody(formValues: z.infer<typeof formSchema>): APIBody {
+    function getAPIBody(formValues: FormSchema): APIBody {
       const { profile_pic, username } = formValues
 
       return {
@@ -103,10 +107,10 @@ export default function Home() {
                   <FormItem>
                     <FormLabel>Profile Picture</FormLabel>
                     <FormControl>
-                      <UploadFileCustom
+                      <UploadFileButton<FormSchema>
+                        formField="profile_pic"
                         endpoint="imageUploader"
                         {...field}
-                        value={field.value}
                       />
                     </FormControl>
                     <FormDescription>This is your public display name.</FormDescription>
