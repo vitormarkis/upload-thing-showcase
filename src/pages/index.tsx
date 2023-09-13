@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { UploadFileButton } from "@/components/upload-file-button/UploadFileButton"
+import { UploadFileCarousel } from "@/components/upload-file-carousel/UploadFileButton"
 import { uploadFileResponseSchema } from "@/schemas/uploadFileResponseSchema"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -37,17 +37,10 @@ export default function Home() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
-      // profile_pic: [],
-      profile_pic: [
-        {
-          url: "https://utfs.io/f/13e59c6f-ee49-42c0-8cfd-ec185f643806_SGCAM_20230103_0048055690.jpg",
-        },
-      ],
+      profile_pic: [],
     },
     mode: "onTouched",
   })
-
-  console.log(form.watch("profile_pic"))
 
   const { isSubmitting, errors } = form.formState
 
@@ -112,7 +105,7 @@ export default function Home() {
                   <FormItem>
                     <FormLabel>Profile Picture</FormLabel>
                     <FormControl>
-                      <UploadFileButton<FormSchema>
+                      <UploadFileCarousel<FormSchema>
                         formField="profile_pic"
                         endpoint="imageUploader"
                         {...field}

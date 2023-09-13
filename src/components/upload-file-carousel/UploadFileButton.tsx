@@ -1,115 +1,73 @@
 import Image from "next/image"
 import Link from "next/link"
-import React, { useEffect, useRef } from "react"
-import { FieldPath, FieldValues, useFormContext } from "react-hook-form"
+import React, { useContext } from "react"
+import { FieldPath, FieldValues } from "react-hook-form"
 import { UploadFileResponse } from "uploadthing/client"
 import { cn } from "@/lib/utils"
 import { IconImage } from "@/components/icons/IconImage"
 import { IconTrash } from "@/components/icons/IconTrash"
 import {
-  Field,
+  ControllerField,
   FormField,
   UploadButtonChooseFile,
-} from "@/components/upload-file-button/UploadFileButton.types"
-import { ButtonUploadFile } from "@/components/upload-file-button/button-upload-file/ButtonUploadFile"
-import { UploadButton } from "@/utils/uploadthing"
+} from "@/components/upload-file-carousel/UploadFileButton.types"
+import { ButtonUploadFile } from "@/components/upload-file-carousel/button-upload-file/ButtonUploadFile"
+import {
+  UploadFileContext,
+  UploadFileProvider,
+} from "@/components/upload-file-carousel/contexts/upload-file-context"
 
-export const UploadFileChooseFile = ButtonUploadFile
-
-export type UploadFileButtonProps<
+export type UploadFileCarouselProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
-> = Field &
+> = ControllerField<UploadFileResponse[]> &
   UploadButtonChooseFile &
   FormField<TFieldValues, TName> & {
     maxUploads?: number
   }
 
-export function UploadFileButton<
+export const UploadFileChooseFile = ButtonUploadFile
+
+export function UploadFileCarousel<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
->({ formField, endpoint, maxUploads = 5, ...field }: UploadFileButtonProps<TFieldValues, TName>) {
-  const form = useFormContext<TFieldValues>()
-
-  const setErrorMessage = (message: string) =>
-    form.setError(formField, {
-      message,
-    })
-
-  const imagesDisplayedRef = useRef(field.value)
-  useEffect(() => {
-    imagesDisplayedRef.current = field.value
-  }, [field.value])
-
-  type HandleRemoveFile = UploadFileImageProps["onRemoveClick"]
-  type HandleUploadComplete = React.ComponentProps<typeof UploadButton>["onClientUploadComplete"]
-  type HandleUploadError = React.ComponentProps<typeof UploadButton>["onUploadError"]
-  type ErrorCode = Parameters<NonNullable<HandleUploadError>>[0]["code"]
-
-  const handleRemoveFile: HandleRemoveFile = fileUrl => {
-    field.onChange(field.value.filter(v => v.url !== fileUrl))
-  }
-
-  const handleUploadComplete: HandleUploadComplete = res => {
-    if (!res) return
-    const [file] = res
-    console.log(file)
-    field.onChange([...imagesDisplayedRef.current, file])
-  }
-
-  const handleUploadError: HandleUploadError = error => {
-    if (error instanceof Error) {
-      const messages: Partial<Record<ErrorCode, string>> = {
-        TOO_LARGE: "Tamanho de imagem excedido, o limite são 4MB.",
-        BAD_REQUEST: "Erro ao fazer upload. Tente novamente.",
-        FILE_LIMIT_EXCEEDED: "Limite the uploads excedido.",
-        TOO_SMALL: "Imagem muito pequena.",
-        UPLOAD_FAILED: "O upload falhou, tente novamente.",
-        TOO_MANY_FILES: "Limite the arquivos excedido.",
-      }
-
-      const message = messages[error.code]
-      setErrorMessage(message ?? messages.BAD_REQUEST!)
-    }
-  }
-
+>({ maxUploads = 5, ...providerProps }: UploadFileCarouselProps<TFieldValues, TName>) {
   return (
     <div
       role="combobox"
-      className="flex flex-col text-foreground gap-2 "
+      className="flex flex-col text-foreground gap-2"
     >
       <div className="flex gap-2">
-        {Array.from({ length: maxUploads }).map((_, i) =>
-          field.value[i] ? (
-            <UploadFileImage
-              key={field.value[i].url}
-              onRemoveClick={handleRemoveFile}
-              res={field.value[i]}
-            />
-          ) : (
-            <UploadFileChooseFile
-              key={i}
-              onTap={() => form.clearErrors(formField)}
-              endpoint={endpoint}
-              onClientUploadComplete={handleUploadComplete}
-              onUploadError={handleUploadError}
-            />
-          )
-        )}
+        <UploadFileProvider
+          maxUploads={maxUploads}
+          {...providerProps}
+        >
+          {Array.from({ length: maxUploads }).map((_, i) =>
+            providerProps.value[i] ? (
+              <UploadFileImage
+                key={providerProps.value[i].url}
+                res={providerProps.value[i]}
+              />
+            ) : (
+              <UploadFileChooseFile key={i} />
+            )
+          )}
+        </UploadFileProvider>
       </div>
     </div>
   )
 }
 
-UploadFileButton.displayName = "UploadFileButton"
+UploadFileCarousel.displayName = "UploadFileButton"
 
 export type UploadFileImageProps = React.ComponentPropsWithoutRef<"div"> & {
-  onRemoveClick: (fileUrl: string) => void
   res: UploadFileResponse
 }
 
 export const UploadFileImage = React.forwardRef<React.ElementRef<"div">, UploadFileImageProps>(
-  function UploadFileImageComponent({ onRemoveClick, res, ...props }, ref) {
+  function UploadFileImageComponent({ res, ...props }, ref) {
+    const { handleRemoveFile } = useContext(UploadFileContext)
+
     return (
       <div
         {...props}
@@ -130,7 +88,7 @@ export const UploadFileImage = React.forwardRef<React.ElementRef<"div">, UploadF
         ref={ref}
         tabIndex={-1}
       >
-        <UploadFileRemoveFile onClick={() => onRemoveClick(res.url)} />
+        <UploadFileRemoveFile onClick={() => handleRemoveFile({ fileUrl: res.url })} />
         <Link
           target="_blank"
           href={res.url}

@@ -1,24 +1,20 @@
-import { cva } from "class-variance-authority"
+import { useContext } from "react"
 import { IconImage } from "@/components/icons/IconImage"
+import { UploadFileContext } from "@/components/upload-file-carousel/contexts/upload-file-context"
 import { UploadButton } from "@/utils/uploadthing"
 
-export const buttonUploadFilesVariantProps = cva("")
+export type ButtonUploadFileProps = {}
 
-export type ButtonUploadFileProps = Omit<
-  React.ComponentProps<typeof UploadButton>,
-  "appearance" | "content"
-> & {
-  onTap?: () => void
-}
+export function ButtonUploadFile({}: ButtonUploadFileProps) {
+  const { onOpenChooseFileWindow, ...uploadButtonProps } = useContext(UploadFileContext)
 
-export function ButtonUploadFile({ onTap, ...props }: ButtonUploadFileProps) {
   return (
     <div
       className="relative border rounded-md focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-[#077c7c] focus-visible:border-[#0ff]"
-      onClick={onTap}
+      onClick={onOpenChooseFileWindow}
       onKeyUp={e => {
-        if (onTap && (e.key === "Enter" || e.key === " ")) {
-          onTap()
+        if (onOpenChooseFileWindow && (e.key === "Enter" || e.key === " ")) {
+          onOpenChooseFileWindow()
           const uploadButton = e.currentTarget.querySelector(".button-upload-file")
           if (!uploadButton) return
 
@@ -54,7 +50,7 @@ export function ButtonUploadFile({ onTap, ...props }: ButtonUploadFileProps) {
           },
           allowedContent: ({ fileTypes }) => fileTypes,
         }}
-        {...props}
+        {...uploadButtonProps}
       />
     </div>
   )
