@@ -4,7 +4,7 @@ import { Slot } from "@radix-ui/react-slot"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "flex whitespace-nowrap items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+  "flex whitespace-nowrap items-center justify-center rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none",
   {
     variants: {
       variant: {
@@ -21,10 +21,16 @@ const buttonVariants = cva(
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
       },
+      ring: {
+        action:
+          "border focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-[#0ff] focus-visible:border-[#0ff]",
+        none: "ring-offset-background focus-visible:ring-2 focus-visible:ring-ring",
+      },
     },
     defaultVariants: {
       variant: "default",
       size: "default",
+      ring: "none",
     },
   }
 )
@@ -36,11 +42,11 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, ring, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(buttonVariants({ variant, size, ring, className }))}
         ref={ref}
         {...props}
       />

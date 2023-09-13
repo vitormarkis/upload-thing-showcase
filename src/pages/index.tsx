@@ -37,7 +37,12 @@ export default function Home() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
-      profile_pic: [],
+      // profile_pic: [],
+      profile_pic: [
+        {
+          url: "https://utfs.io/f/13e59c6f-ee49-42c0-8cfd-ec185f643806_SGCAM_20230103_0048055690.jpg",
+        },
+      ],
     },
     mode: "onTouched",
   })
@@ -148,7 +153,12 @@ export default function Home() {
                 name="photos"
               /> */}
 
-              <Button type="submit">Submit</Button>
+              <Button
+                ring="action"
+                type="submit"
+              >
+                Submit
+              </Button>
             </form>
           </Form>
         </CardContent>

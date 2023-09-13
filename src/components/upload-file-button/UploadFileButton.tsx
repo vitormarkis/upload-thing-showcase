@@ -53,6 +53,7 @@ export function UploadFileButton<
   const handleUploadComplete: HandleUploadComplete = res => {
     if (!res) return
     const [file] = res
+    console.log(file)
     field.onChange([...imagesDisplayedRef.current, file])
   }
 
@@ -88,7 +89,7 @@ export function UploadFileButton<
           ) : (
             <UploadFileChooseFile
               key={i}
-              onClick={() => form.clearErrors(formField)}
+              onTap={() => form.clearErrors(formField)}
               endpoint={endpoint}
               onClientUploadComplete={handleUploadComplete}
               onUploadError={handleUploadError}
@@ -113,44 +114,52 @@ export const UploadFileImage = React.forwardRef<React.ElementRef<"div">, UploadF
       <div
         {...props}
         className={cn(
-          "relative group transition-all duration-300 hover:translate-y-[-2px]",
+          "relative transition-[box-shadow,opacity,transform] duration-300 hover:translate-y-[-2px]",
+          `
+          [&:is(:focus-within,:hover)_[data-type='remove-upload-file']]:translate-y-0
+          [&:is(:focus-within,:hover)_[data-type='remove-upload-file']]:opacity-100
+          [&:is(:focus-within,:hover)_[data-type='remove-upload-file']]:scale-100
+          `
+            // [&:has(a:focus)[data-type='image-wrapper']]:ring-[1.5px]
+            // [&:has(a:focus)[data-type='image-wrapper']]:ring-[#077c7c]
+            // [&:has(a:focus)[data-type='image-wrapper']]:border-[#0ff]
+            .replace(/\s+/g, " ")
+            .trim(),
           props.className
         )}
         ref={ref}
+        tabIndex={-1}
       >
-        <div className={cn("absolute z-20 right-0 top-0 translate-x-1/2 -translate-y-1/2", "")}>
-          <button
-            onClick={() => onRemoveClick(res.url)}
-            type="button"
-            className={cn(
-              "h-4 w-4 rounded-sm bg-red-500 grid place-items-center transition-all duration-200",
-              "translate-y-1 opacity-0 scale-90",
-              "group-hover:translate-y-0 group-hover:opacity-100 group-hover:scale-100"
-            )}
-          >
-            <IconTrash size={10} />
-          </button>
-        </div>
-        <div className="w-14 h-14 relative overflow-hidden rounded-md border">
+        <UploadFileRemoveFile onClick={() => onRemoveClick(res.url)} />
+        <Link
+          target="_blank"
+          href={res.url}
+          className={cn(
+            "peer block before:transition-[transform,brightness] duration-100 ease-in-out absolute z-10 inset-0",
+            "focus-visible:outline-none outline-none"
+          )}
+        />
+        <div
+          data-type="image-wrapper"
+          className={cn(
+            "border w-14 h-14 rounded-md relative overflow-hidden",
+            `
+          peer-focus:ring-[1.5px]
+          peer-focus:ring-[#077c7c]
+          peer-focus:border-[#0ff]
+        `
+          )}
+        >
           <div className="absolute inset-0 bg-neutral-800 animate-pulse" />
           <Image
             alt="example image"
             src={res.url}
-            className="object-cover"
+            className="object-cover focus:outline-none"
             sizes="(max-width: 768px) 10vw, (max-width: 1200px) 50vw"
             quality={5}
             fill
           />
         </div>
-        <Link
-          target="_blank"
-          href={res.url}
-          className={cn(
-            "transition-all duration-100 ease-in-out absolute z-10 inset-0",
-            "brightness-100",
-            "hover:bg-black/30 hover:brightness-95"
-          )}
-        />
       </div>
     )
   }
@@ -192,3 +201,40 @@ export const UploadFileImagePlaceholder = React.forwardRef<
 })
 
 UploadFileImagePlaceholder.displayName = "UploadFileImagePlaceholder"
+
+export type UploadFileRemoveFileProps = React.ComponentPropsWithoutRef<"div"> & {}
+
+export const UploadFileRemoveFile = React.forwardRef<
+  React.ElementRef<"div">,
+  UploadFileRemoveFileProps
+>(function UploadFileRemoveFileComponent({ ...props }, ref) {
+  return (
+    <div
+      {...props}
+      ref={ref}
+      className={cn(
+        "absolute z-20 right-0 top-0 translate-x-1/2 -translate-y-1/2",
+        props.className
+      )}
+    >
+      <button
+        data-type="remove-upload-file"
+        type="button"
+        className={cn(
+          "h-4 w-4 rounded-sm bg-red-500 grid place-items-center transition-[box-shadow,opacity,transform] duration-200 border border-red-500",
+          "translate-y-1 opacity-0 scale-90",
+          `
+              focus:outline-none
+              focus:ring-1
+              focus:ring-white
+              focus:border-red-800
+          `
+        )}
+      >
+        <IconTrash size={10} />
+      </button>
+    </div>
+  )
+})
+
+UploadFileRemoveFile.displayName = "UploadFileRemoveFile"
